@@ -31,7 +31,7 @@ export async function rentalValidation(req, res, next) {
     }
 
     const rentalsNumber = await connectionDB.query(
-      `SELECT * FROM rentals WHERE "gameId" = $1;`,
+      `SELECT * FROM rentals WHERE "gameId" = $1 AND "returnDate" IS NOT NULL;`,
       [rental.gameId]
     ).rows;
 
