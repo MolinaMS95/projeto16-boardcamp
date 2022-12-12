@@ -3,7 +3,11 @@ import { customerSchema } from "../models/customer.model.js";
 
 export async function customerValidation(req, res, next) {
   const customer = req.body;
-  const { id } = req.params;
+  let id = 0;
+
+  if(req.params.id){
+    id = req.params.id;
+  }
 
   const { error } = customerSchema.validate(customer, { abortEarly: false });
 

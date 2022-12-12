@@ -7,13 +7,13 @@ export async function isRentalFinished(req, res, next) {
     const rental = await connectionDB.query(
       "SELECT * FROM rentals WHERE id=$1;",
       [id]
-    ).rows;
+    );
 
-    if (rental.length === 0) {
+    if (rental.rows.length === 0) {
       return res.sendStatus(404);
     }
 
-    if (rental[0].returnDate == null) {
+    if (rental.rows[0].returnDate == null) {
       return res.sendStatus(400);
     }
 

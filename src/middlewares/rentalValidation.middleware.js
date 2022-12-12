@@ -15,31 +15,31 @@ export async function rentalValidation(req, res, next) {
     const customerRows = await connectionDB.query(
       "SELECT * FROM customers WHERE id=$1;",
       [rental.customerId]
-    ).rows;
-
-    if (customerRows.length === 0) {
+    );
+    
+    if (customerRows.rows.length === 0) {
       return res.sendStatus(400);
     }
 
     const gamesRows = await connectionDB.query(
       "SELECT * FROM games WHERE id=$1;",
       [rental.gameId]
-    ).rows;
+    );
 
-    if (gamesRows.length == 0) {
+    if (gamesRows.rows.length == 0) {
       return res.sendStatus(400);
     }
 
     const rentalsNumber = await connectionDB.query(
-      `SELECT * FROM rentals WHERE "gameId" = $1 AND "returnDate" IS NOT NULL;`,
+      `SELECT * FROM rentals WHERE "gameId" = $1 AND "returnDate" IS NULL;`,
       [rental.gameId]
-    ).rows;
+    );
 
-    if (rentalsNumber.length >= gamesRows[0].stockTotal) {
+    if (rentalsNumber.rows.length >= gamesRows.rows[0].stockTotal) {
       return res.sendStatus(400);
     }
 
-    res.locals.game = gamesRows[0]; 
+    res.locals.game = gamesRows.rows[0]; 
 
     next();
   } catch (error) {

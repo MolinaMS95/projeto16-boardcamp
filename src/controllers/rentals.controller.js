@@ -6,15 +6,32 @@ export async function getRentals(req, res) {
   const gameId = parseInt(req.query.gameId);
 
   try {
-    const { rows } = await connectionDB.query(
-      `SELECT rentals.*, 
-              JSON_BUILD_OBJECT("customer", ROW(customers.id, customer.name)), 
-              JSON_BUILD_OBJECT("game", ROW(games.id, games.name, games."categoryId", categories.name AS "categoryName"))
+    let { rows } = await connectionDB.query(
+      `SELECT rentals.*, customers.id AS "idCustomer", customers.name AS "nameCustomer", games.id AS "idGame", games.name AS "gameName", 
+              games."categoryId", categories.name AS "categoryName"
       FROM rentals 
       JOIN customers ON rentals."customerId" = customers.id
       JOIN games ON rentals."gameId" = games.id
       JOIN categories ON games."categoryId" = categories.id;`
     );
+
+    rows = rows.map((rental) => ({
+      id: rental.id,
+      customerId: rental.customerId,
+      gameId: rental.gameId,
+      rentDate: rental.rentDate,
+      daysRented: rental.daysRented,
+      returnDate: rental.returnDate,
+      originalPrice: rental.originalPrice,
+      delayFee: rental.delayFee,
+      customer: { id: rental.idCustomer, name: rental.nameCustomer },
+      game: {
+        id: rental.idGame,
+        name: rental.gameName,
+        categoryId: rental.categoryId,
+        categoryName: rental.categoryName,
+      },
+    }));
 
     if (customerId) {
       rows = rows.filter((rental) => rental.customerId == customerId);
@@ -63,8 +80,8 @@ export async function returnRental(req, res) {
   const price = rental.originalPrice / rental.daysRented;
   const returnDate = dayjs().format("YYYY-MM-DD");
   let delayFee = null;
-  const expectedReturnDate = rental.rentDate.add(rental.daysRented, "day");
-  const delay = returnDate.getDate() - expectedReturnDate.getDate();
+  const expectedReturnDate = dayjs(rental.rentDate).add(rental.daysRented, "day");
+  const delay = dayjs(returnDate).diff(expectedReturnDate, 'day');
 
   if (delay > 0) {
     delayFee = delay * price;

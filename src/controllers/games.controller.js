@@ -1,16 +1,16 @@
 import { connectionDB } from "../database/db.js";
 
 export async function getGames(req, res) {
-  const name = req.query.name.toLowerCase();
+  const name = req.query.name;
   try {
     const { rows } = await connectionDB.query(
-      `SELECT games.*, categories.name AS "categoryName" FROM games JOIN categories ON games.categoryId = categories.id;`
+      `SELECT games.*, categories.name AS "categoryName" FROM games JOIN categories ON games."categoryId" = categories.id;`
     );
     if (!name) {
       return res.send(rows);
     } else {
       const filteredRows = rows.filter((game) =>
-        game.name.toLowerCase().startsWith(name)
+        game.name.toLowerCase().startsWith(name.toLowerCase())
       );
       return res.send(filteredRows);
     }
