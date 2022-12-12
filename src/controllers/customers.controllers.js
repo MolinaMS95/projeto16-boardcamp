@@ -17,3 +17,22 @@ export async function getCustomers(req, res) {
     res.status(500).send(error.message);
   }
 }
+
+export async function findCustomerById(req, res) {
+  const { id } = req.params;
+
+  try {
+    const { rows } = await connectionDB.query(
+      "SELECT * FROM customers WHERE id=$1;",
+      [id]
+    );
+
+    if (rows.length === 0) {
+      return res.sendStatus(404);
+    }
+
+    return res.send(rows[0]);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+}
