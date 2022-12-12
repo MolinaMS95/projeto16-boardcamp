@@ -9,8 +9,8 @@ export async function getGames(req, res) {
     if (!name) {
       return res.send(rows);
     } else {
-      const filteredRows = rows.filter((gameName) =>
-        gameName.toLowerCase().startsWith(name)
+      const filteredRows = rows.filter((game) =>
+        game.name.toLowerCase().startsWith(name)
       );
       return res.send(filteredRows);
     }
