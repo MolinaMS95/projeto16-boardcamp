@@ -3,6 +3,7 @@ import { customerSchema } from "../models/customer.model.js";
 
 export async function customerValidation(req, res, next) {
   const customer = req.body;
+  const { id } = req.params;
 
   const { error } = customerSchema.validate(customer, { abortEarly: false });
 
@@ -13,8 +14,8 @@ export async function customerValidation(req, res, next) {
 
   try {
     const { rows } = await connectionDB.query(
-      "SELECT * FROM customers WHERE cpf=$1;",
-      [customer.cpf]
+      "SELECT * FROM customers WHERE cpf = $1 AND id <> $2;",
+      [customer.cpf, id]
     );
 
     if (rows.length !== 0) {
