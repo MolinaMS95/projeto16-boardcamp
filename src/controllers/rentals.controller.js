@@ -1,4 +1,5 @@
 import { connectionDB } from "../database/db.js";
+import dayjs from "dayjs";
 
 export async function getRentals(req, res) {
   const customerId = parseInt(req.query.customerId);
@@ -24,6 +25,25 @@ export async function getRentals(req, res) {
     }
 
     res.send(rows);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+}
+
+export async function createGame(req, res) {
+  const game = res.locals.game
+  const { customerId, gameId, daysRented } = req.body;
+  const rentDate = dayjs().format('YYYY-MM-DD');
+  const returnDate = null;
+  const originalPrice = daysRented * game.pricePerDay;
+  const delayFee = null;
+
+  try {
+    await connectionDB.query(
+      `INSERT INTO rentals ("customerId", "gameId", "rentDate", "daysRented", "returnDate", "originalPrice", "delayFee") VALUES ($1, $2, $3, $4, $5, $6, $7);`,
+      [customerId, gameId, rentDate, daysRented, returnDate, originalPrice, delayFee]
+    );
+    res.sendStatus(201);
   } catch (error) {
     res.status(500).send(error.message);
   }
