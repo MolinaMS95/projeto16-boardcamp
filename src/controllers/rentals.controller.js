@@ -60,10 +60,10 @@ export async function createRental(req, res) {
 export async function returnRental(req, res) {
   const rental = res.locals.rental;
   const id = rental.id;
-  const price = rental.originalPrice/rental.daysRented;
+  const price = rental.originalPrice / rental.daysRented;
   const returnDate = dayjs().format("YYYY-MM-DD");
   let delayFee = null;
-  const expectedReturnDate = rental.rentDate.add(rental.daysRented, 'day');
+  const expectedReturnDate = rental.rentDate.add(rental.daysRented, "day");
   const delay = returnDate.getDate() - expectedReturnDate.getDate();
 
   if (delay > 0) {
@@ -78,5 +78,16 @@ export async function returnRental(req, res) {
     res.sendStatus(200);
   } catch (error) {
     res.sendStatus(500);
+  }
+}
+
+export async function deleteRental(req, res) {
+  const { id } = req.params;
+
+  try {
+    await connectionDB.query("DELETE FROM rentals WHERE id=$1", [id]);
+    res.sendStatus(200);
+  } catch (error) {
+    res.status(500).send(error.message);
   }
 }
